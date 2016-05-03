@@ -292,6 +292,10 @@ def _main():
         Defaulting to BIOM 1.0 (JSON)."""
         print(twdd(msg))
 
+    if ranks.index(args.max) >= ranks.index(args.min):
+        msg = "ERROR: Max and Min ranks are out of order: {} < {}"
+        sys.exit(msg.format(args.max, args.min))
+
     # Parse all kraken-report data files into sample counts dict
     # and store global taxon id -> taxonomy data
     taxa = OrderedDict()
