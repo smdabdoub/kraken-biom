@@ -21,7 +21,6 @@ before_install:
 install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy scipy
   - pip install biom-format
-  - pip install .
 
 script:
   - python -m unittest discover -s test/ -vf
