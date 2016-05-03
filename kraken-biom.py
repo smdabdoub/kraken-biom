@@ -113,7 +113,7 @@ def parse_kraken_report(kdata, max_rank, min_rank):
             r = ranks.index(erank)
         
         # record the reads assigned to this taxon level, and record the taxonomy string with the NCBI ID
-        if erank in ranks and ranks.index(entry['rank']) >= max_rank_idx:
+        if erank in ranks and min_rank_idx >= ranks.index(entry['rank']) >= max_rank_idx:
             taxon_reads = int(entry["taxon_reads"])
             clade_reads = int(entry["clade_reads"])
             if taxon_reads > 0 or (clade_reads > 0 and entry['rank'] == min_rank):
