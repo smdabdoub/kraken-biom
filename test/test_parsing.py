@@ -18,7 +18,7 @@ def prep_kraken_input(data):
 
 class kraken_biom_Test(unittest.TestCase):
     def setUp(self):
-        self.sample_kraken_rep = prep_kraken_input(io.StringIO(twdd("""\
+        self.sample_kraken_rep = prep_kraken_input(io.StringIO(twdd(u"""\
             100.00	6783846	6783846	U	0	unclassified
             0.00	130	18	-	1	root
             0.00	105	0	-	131567	  cellular organisms
