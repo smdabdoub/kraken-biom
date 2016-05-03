@@ -331,10 +331,12 @@ def _main():
     if args.verbose:
         print("".format(out_fp))
         table_str = """\
-        BIOM-format table written to: {}
-        Table contains {} rows (OTUs) and {} columns (Samples)"
-        and is {:.1%} dense.""".format(out_fp, *biomT.shape, 
-                                       biomT.get_table_density())
+        BIOM-format table written to: {out_fp}
+        Table contains {rows} rows (OTUs) and {cols} columns (Samples)"
+        and is {density:.1%} dense.""".format(out_fp=out_fp, 
+                                              rows=biomT.shape[0], 
+                                              cols=biomT.shape[1],
+                                              density=biomT.get_table_density())
         print(twdd(table_str))
 
 
