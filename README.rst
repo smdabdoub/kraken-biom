@@ -1,5 +1,8 @@
 kraken-biom
 ===========
+.. image:: https://img.shields.io/travis/smdabdoub/kraken-biom.svg?style=plastic
+    :target: https://travis-ci.org/smdabdoub/kraken-biom
+    :alt: Travis CI build status
 
 Create BIOM-format tables (http://biom-format.org) from Kraken output 
 (http://ccb.jhu.edu/software/kraken/).
