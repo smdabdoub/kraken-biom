@@ -332,7 +332,7 @@ def _main():
         print("".format(out_fp))
         table_str = """\
         BIOM-format table written to: {out_fp}
-        Table contains {rows} rows (OTUs) and {cols} columns (Samples)"
+        Table contains {rows} rows (OTUs) and {cols} columns (Samples)
         and is {density:.1%} dense.""".format(out_fp=out_fp, 
                                               rows=biomT.shape[0], 
                                               cols=biomT.shape[1],

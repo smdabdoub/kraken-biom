@@ -8,7 +8,7 @@ import tempfile
 from textwrap import dedent as twdd
 import unittest
 
-kb = importlib.import_module("kraken-biom")
+import kraken_biom as kb
 
 
 def prep_kraken_input(data):
