@@ -4,6 +4,24 @@ kraken-biom
 Create BIOM-format tables (http://biom-format.org) from Kraken output 
 (http://ccb.jhu.edu/software/kraken/).
 
+Installation
+------------
+
+From source:
+
+.. code-block:: bash
+
+    $ python setup.py install
+
+
+Requirements
+------------
+
+- biom-format >= 2.1.5
+
+Documentation
+-------------
+
 The program takes as input, one or more files output from the kraken-report
 tool. Each file is parsed and the counts for each OTU (operational taxonomic
 unit) are recorded, along with database ID (e.g. NCBI), and lineage. The
