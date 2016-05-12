@@ -37,7 +37,7 @@ setup(
     install_requires=install_requires,
     entry_points={
         'console_scripts': [
-            'kraken-biom = kraken_biom:_main',
+            'kraken-biom = kraken_biom:main',
         ],
     },
     classifiers=[

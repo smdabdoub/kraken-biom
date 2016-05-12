@@ -282,7 +282,7 @@ def handle_program_options():
     return parser.parse_args()
 
 
-def _main():
+def main():
     args = handle_program_options()
 
     if args.fmt == 'hdf5' and not HAVE_H5PY:
@@ -341,5 +341,5 @@ def _main():
 
 
 if __name__ == '__main__':
-    _main()
+    main()
 
