@@ -131,6 +131,38 @@ def parse_kraken_report(kdata, max_rank, min_rank):
     return counts, taxa
 
 
+def process_samples(kraken_reports_fp):
+    """
+    Parse all kraken-report data files into sample counts dict
+    and store global taxon id -> taxonomy data
+    """
+    taxa = OrderedDict()
+    sample_counts = OrderedDict()
+    for krep_fp in kraken_reports_fp:
+        if not osp.isfile(krep_fp):
+            raise RuntimeError("ERROR: File '{}' not found.".format(krep_fp))
+
+        # use the kraken report filename as the sample ID
+        sample_id = osp.splitext(osp.split(krep_fp)[1])[0]
+
+        with open(krep_fp, "rt") as kf:
+            try:
+                kdr = csv.DictReader(kf, fieldnames=field_names, 
+                                     delimiter="\t")
+                kdata = [entry for entry in kdr][1:]
+            except OSError as oe:
+                raise RuntimeError("ERROR: {}".format(oe))
+
+        scounts, staxa = parse_kraken_report(kdata, max_rank=args.max, 
+                                             min_rank=args.min)
+
+        # update master records
+        taxa.update(staxa)
+        sample_counts[sample_id] = scounts
+
+    return sample_counts, taxa
+
+
 def create_biom_table(sample_counts, taxa):
     """
     Create a BIOM table from sample counts and taxonomy metadata.
@@ -296,31 +328,8 @@ def main():
         msg = "ERROR: Max and Min ranks are out of order: {} < {}"
         sys.exit(msg.format(args.max, args.min))
 
-    # Parse all kraken-report data files into sample counts dict
-    # and store global taxon id -> taxonomy data
-    taxa = OrderedDict()
-    sample_counts = OrderedDict()
-    for krep_fp in args.kraken_reports:
-        if not osp.isfile(krep_fp):
-            sys.exit("ERROR: File '{}' not found.".format(krep_fp))
-
-        # use the kraken report filename as the sample ID
-        sample_id = osp.splitext(osp.split(krep_fp)[1])[0]
-
-        with open(krep_fp, "rt") as kf:
-            try:
-                kdr = csv.DictReader(kf, fieldnames=field_names, 
-                                     delimiter="\t")
-                kdata = [entry for entry in kdr][1:]
-            except OSError as oe:
-                sys.exit("ERROR: {}".format(oe))
-
-        scounts, staxa = parse_kraken_report(kdata, max_rank=args.max, 
-                                             min_rank=args.min)
-
-        # update global records
-        taxa.update(staxa)
-        sample_counts[sample_id] = scounts
+    # load all kraken-report files and parse them
+    sample_counts, taxa = process_samples(args.kraken_reports)
 
     # create new BIOM table from sample counts and taxon ids
     # add taxonomy strings to row (taxon) metadata
