@@ -195,6 +195,15 @@ def create_biom_table(sample_counts, taxa):
 def write_biom(biomT, output_fp, fmt="hdf5", gzip=False):
     """
     Write the BIOM table to a file.
+
+    :type biomT: biom.table.Table
+    :param biomT: A BIOM table containing the per-sample OTU counts and metadata
+                  to be written out to file.
+    :type output_fp str
+    :param output_fp: Path to the BIOM-format file that will be written.
+    :type fmt: str
+    :param fmt: One of: hdf5, json, tsv. The BIOM version the table will be
+                output (2.x, 1.0, 'classic').
     """
     opener = open
     mode = 'w'
