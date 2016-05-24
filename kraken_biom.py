@@ -228,6 +228,24 @@ def write_biom(biomT, output_fp, fmt="hdf5", gzip=False):
     return output_fp
 
 
+def write_otu_file(otu_ids, fp):
+    """
+    Write out a file containing only the list of OTU IDs from the kraken data.
+    One line per ID.
+
+    :type otu_ids: list or iterable
+    :param otu_ids: The OTU identifiers that will be written to file.
+    :type fp: str
+    :param fp: The path to the output file.
+    """
+    fpdir = osp.split(fp)[0]
+    if not osp.isdir(fpdir):
+        raise RuntimeError("Specified path does not exist: {}".format(fpdir))
+
+    with open(fp, 'rt') as outf:
+        outf.write('\n'.join(otu_ids))
+
+
 def handle_program_options():
     descr = """\
     Create BIOM-format tables (http://biom-format.org) from Kraken output 
@@ -304,6 +322,12 @@ def handle_program_options():
                         output to a different format using the --fmt option.\
                         The output can also be gzipped using the --gzip\
                         option. Default path is: ./table.biom")
+    parser.add_argument('--otu_fp',
+                        help="Create a file containing just the (NCBI) OTU IDs\
+                        for use with a service such as phyloT \
+                        (http://phylot.biobyte.de/) to generate a phylogenetic\
+                        tree for use in downstream analysis such as UniFrac, \
+                        iTol (itol.embl.de), or PhyloToAST (phylotoast.org).")
     parser.add_argument('--fmt', default="hdf5", 
                         choices=["hdf5", "json", "tsv"],
                         help="Set the output format of the BIOM table.\
@@ -313,6 +337,7 @@ def handle_program_options():
                               HDF5 BIOM (v2.x) files are internally\
                               compressed by default, so this option\
                               is not needed when specifying --fmt hdf5.")
+
     
     parser.add_argument('--version', action='version',                    
              version="kraken-biom version {}, {}".format(__version__, __url__))
@@ -345,6 +370,13 @@ def main():
     biomT = create_biom_table(sample_counts, taxa)
 
     out_fp = write_biom(biomT, args.output_fp, args.fmt, args.gzip)
+
+    if args.otu_fp:
+        try:
+            write_otu_file(list(taxa), args.otu_fp)
+        except RuntimeError as re:
+            msg = "ERROR creating OTU file: \n\t{}"
+            sys.exit(msg.format(re))
 
     if args.verbose:
         print("".format(out_fp))
