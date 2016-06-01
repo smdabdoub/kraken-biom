@@ -66,10 +66,14 @@ def tax_fmt(tax_lvl, end):
     # print(ranks[:end])
     tax = ["{}__{}".format(r.lower(), tax_lvl[r] if r in tax_lvl else '') 
              for r in ranks[:end+1]]
+    # add empty identifiers for ranks beyond end
+    #TODO: remove the :-1 when SS support is added
+    tax.extend(["{}__".format(r.lower()) for r in ranks[end+1:-1]])
+
     # even though Bacteria, Archea are now technically Domains/superkingdoms
     # GreenGenes and other databases still list the traditional 
     # kingdom/phylum/class/etc. So this is a hack to shoehorn the kraken-report
-    # data into that format. Note that this has only been tested with
+    # data into that format.
     if tax[0].startswith('d'):
         tax[0] = "k"+tax[0][1:]
 
