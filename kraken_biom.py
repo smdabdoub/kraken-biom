@@ -135,7 +135,7 @@ def parse_kraken_report(kdata, max_rank, min_rank):
     return counts, taxa
 
 
-def process_samples(kraken_reports_fp):
+def process_samples(kraken_reports_fp, max_rank, min_rank):
     """
     Parse all kraken-report data files into sample counts dict
     and store global taxon id -> taxonomy data
@@ -157,8 +157,8 @@ def process_samples(kraken_reports_fp):
             except OSError as oe:
                 raise RuntimeError("ERROR: {}".format(oe))
 
-        scounts, staxa = parse_kraken_report(kdata, max_rank=args.max, 
-                                             min_rank=args.min)
+        scounts, staxa = parse_kraken_report(kdata, max_rank=max_rank, 
+                                             min_rank=min_rank)
 
         # update master records
         taxa.update(staxa)
@@ -367,7 +367,9 @@ def main():
         sys.exit(msg.format(args.max, args.min))
 
     # load all kraken-report files and parse them
-    sample_counts, taxa = process_samples(args.kraken_reports)
+    sample_counts, taxa = process_samples(args.kraken_reports, 
+                                          max_rank=args.max, 
+                                          min_rank=args.min)
 
     # create new BIOM table from sample counts and taxon ids
     # add taxonomy strings to row (taxon) metadata
