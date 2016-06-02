@@ -189,9 +189,9 @@ class kraken_biom_Test(unittest.TestCase):
     def test_sample_ids(self):
         biom_sample_ids = self.biomT.ids(axis="sample")
 
-        self.assertTrue(len(biom_sample_ids) == 2)
-        self.assertTrue(set(biom_sample_ids).symmetric_difference(["A","B"]) 
-                        == set())
+        self.assertEqual(len(biom_sample_ids), 2)
+        self.assertEqual(set(biom_sample_ids).symmetric_difference(["A","B"]),
+                         set())
 
     def test_observation_ids(self):
         biom_otu_ids = self.biomT.ids(axis="observation")
@@ -200,9 +200,9 @@ class kraken_biom_Test(unittest.TestCase):
                    '1301', '135622', '562', '29288', '374840', '1304', '1303',
                    '1747', '1308', '543', '28108', '179636', '12916'}
 
-        self.assertTrue(len(biom_otu_ids) == len(otu_ids))
-        self.assertTrue(set(biom_otu_ids).symmetric_difference(otu_ids) 
-                        == set())
+        self.assertEqual(len(biom_otu_ids), len(otu_ids))
+        self.assertEqual(set(biom_otu_ids).symmetric_difference(otu_ids), 
+                         set())
 
     def test_sample_counts(self):
         countsA = {'265522': 2, '1382': 2, '11036': 2, '37734': 9, '1747': 1,
