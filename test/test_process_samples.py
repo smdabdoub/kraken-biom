@@ -266,6 +266,36 @@ class kraken_biom_Test(unittest.TestCase):
                                for otu_id in proc_countsB]))
 
 
+    def test_taxa(self):
+        manual = {"1304":  ["k__Bacteria", "p__Firmicutes", "c__Bacilli",
+                            "o__Lactobacillales", "f__Streptococcaceae",
+                            "g__Streptococcus", "s__salivarius"],
+                  "29288": ["k__Archaea", "p__Euryarchaeota", "c__Halobacteria",
+                            "o__Natrialbales", "f__Natrialbaceae",
+                            "g__Natronococcus", "s__occultus"],
+                  "45617": ["k__Viruses", "p__", "c__", "o__", "f__Retroviridae",
+                            "g__", "s__Human endogenous retrovirus K"],
+                  "1301":  ["k__Bacteria", "p__Firmicutes", "c__Bacilli",
+                             "o__Lactobacillales", "f__Streptococcaceae",
+                             "g__Streptococcus", "s__"],
+                  "135622":["k__Bacteria", "p__Proteobacteria", 
+                            "c__Gammaproteobacteria", "o__Alteromonadales", 
+                            "f__", "g__", "s__"],
+                  "543":   ["k__Bacteria", "p__Proteobacteria", 
+                            "c__Gammaproteobacteria", "o__Enterobacteriales", 
+                            "f__Enterobacteriaceae", "g__", "s__"],
+                  "265522":["k__Viruses", "p__", "c__", "o__", 
+                            "f__Polydnaviridae", "g__Ichnovirus", 
+                            "s__Hyposoter fugitivus ichnovirus"],
+                  "374840":["k__Viruses", "p__", "c__", "o__", 
+                            "f__Microviridae", "g__Microvirus", 
+                            "s__Enterobacteria phage phiX174 sensu lato"]
+                 }
+
+        self.assertTrue(all([manual[tax_id] == self.taxa[tax_id] 
+                               for tax_id in manual]))
+
+
 
     def tearDown(self):
         pass
