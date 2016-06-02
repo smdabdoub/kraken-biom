@@ -243,10 +243,11 @@ def write_otu_file(otu_ids, fp):
     :param fp: The path to the output file.
     """
     fpdir = osp.split(fp)[0]
-    if not osp.isdir(fpdir):
+
+    if not fpdir == "" and not osp.isdir(fpdir):
         raise RuntimeError("Specified path does not exist: {}".format(fpdir))
 
-    with open(fp, 'rt') as outf:
+    with open(fp, 'wt') as outf:
         outf.write('\n'.join(otu_ids))
 
 
