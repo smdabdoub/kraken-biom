@@ -10,6 +10,18 @@ Create BIOM-format tables (http://biom-format.org) from Kraken output
 Installation
 ------------
 
+From PyPI:
+
+.. code-block:: bash
+
+    $ pip install kraken-biom
+
+From GitHub:
+
+.. code-block:: bash
+
+    $ pip install git+http://github.com/smdabdoub/kraken-biom.git
+
 From source:
 
 .. code-block:: bash
