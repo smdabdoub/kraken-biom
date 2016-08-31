@@ -51,6 +51,11 @@ Python library 'h5py'. If the library is not installed, kraken-biom will
 automatically switch to using version 1.0. Note that the output can 
 optionally be compressed with gzip (--gzip) for version 1.0 and TSV files. 
 Version 2 files are automatically compressed.
+
+Currently the taxonomy for each OTU ID is stored as row metadata in the BIOM
+table using the standard seven-level QIIME format: k__K; p__P; ... s__S. If
+you would like another format supported, please file an issue or send a pull
+request (note the contribution guidelines).
 ::
 
     usage: kraken-biom.py [-h] [--max {D,P,C,O,F,G,S}] [--min {D,P,C,O,F,G,S}]
