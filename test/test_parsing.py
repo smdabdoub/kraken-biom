@@ -129,6 +129,16 @@ class kraken_biom_Test(unittest.TestCase):
             0.00	1	0	-	206037	          Human endogenous retroviruses
             0.00	1	0	S	45617	            Human endogenous retrovirus K
             0.00	1	1	-	166122	              Human endogenous retrovirus K113
+            0.00	3	1	D	2759	    Eukaryota
+            0.00	1	0	P	3041	        Chlorophyta
+            0.00	1	1	C	75966	          Trebouxiophyceae
+            0.00	1	0	-	33682	      Euglenozoa
+            0.00	1	0	O	5653	        Kinetoplastida
+            0.00	1	0	F	5654	          Trypanosomatidae
+            0.00	1	0	G	5690	            Trypanosoma
+            0.00	1	0	-	47570	              Schizotrypanum
+            0.00	1	0	S	5693	                Trypanosoma cruzi
+            0.00	1	1	-	353153	                  Trypanosoma cruzi strain CL Brener
             """)))
 
     def run_parse_kraken_report(self, manual, max_rank, min_rank):
@@ -169,7 +179,8 @@ class kraken_biom_Test(unittest.TestCase):
                   '37734': 9,
                   '45617': 1,
                   '543': 6,
-                  '562': 1}
+                  '562': 1,
+                  '5693': 1}
 
         self.run_parse_kraken_report(manual,  max_rank="O", min_rank="S")
 
@@ -198,7 +209,8 @@ class kraken_biom_Test(unittest.TestCase):
                   '37734': 9,
                   '45617': 1,
                   '543': 6,
-                  '562': 1}
+                  '562': 1,
+                  '5693': 1}
 
         self.run_parse_kraken_report(manual,  max_rank="F", min_rank="S")
 
@@ -226,7 +238,8 @@ class kraken_biom_Test(unittest.TestCase):
                   '374840': 2,
                   '37734': 9,
                   '45617': 1,
-                  '562': 1}
+                  '562': 1,
+                  '5693': 1}
 
         self.run_parse_kraken_report(manual,  max_rank="G", min_rank="S")
 
@@ -252,7 +265,8 @@ class kraken_biom_Test(unittest.TestCase):
                   '374840': 2,
                   '37734': 9,
                   '45617': 1,
-                  '562': 1}
+                  '562': 1,
+                  '5693': 1}
 
         self.run_parse_kraken_report(manual,  max_rank="S", min_rank="S")
 
@@ -279,7 +293,9 @@ class kraken_biom_Test(unittest.TestCase):
                   '29465': 2,
                   '48736': 11,
                   '543': 6,
-                  '561': 1}
+                  '561': 1,
+                  '75966': 1,
+                  '5690': 1}
 
         self.run_parse_kraken_report(manual,  max_rank="C", min_rank="G")
 
@@ -307,7 +323,9 @@ class kraken_biom_Test(unittest.TestCase):
                             "s__Hyposoter fugitivus ichnovirus"],
                   "374840":["k__Viruses", "p__", "c__", "o__", 
                             "f__Microviridae", "g__Microvirus", 
-                            "s__Enterobacteria phage phiX174 sensu lato"]
+                            "s__Enterobacteria phage phiX174 sensu lato"],
+                  "5693":["k__Eukaryota", "p__", "c__", "o__Kinetoplastida",
+                          "f__Trypanosomatidae", "g__Trypanosoma", "s__cruzi"]
                  }
 
         _, taxa = kb.parse_kraken_report(self.sample_kraken_rep,
