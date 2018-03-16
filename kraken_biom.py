@@ -33,7 +33,7 @@ __license__ = "MIT"
 __url__ = "http://github.com/smdabdoub/kraken-biom"
 __maintainer__ = "Shareef M. Dabdoub"
 __email__ = "dabdoub.2@osu.edu"
-__version__ = '1.0.1'
+__version__ = '1.1.0'
 
 
 field_names = ["pct_reads", "clade_reads", "taxon_reads", 
