@@ -363,7 +363,7 @@ def main():
         Defaulting to BIOM 1.0 (JSON)."""
         print(twdd(msg))
 
-    if ranks.index(args.max) >= ranks.index(args.min):
+    if ranks.index(args.max) > ranks.index(args.min):
         msg = "ERROR: Max and Min ranks are out of order: {} < {}"
         sys.exit(msg.format(args.max, args.min))
 
