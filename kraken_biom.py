@@ -6,6 +6,7 @@ Kraken output (http://ccb.jhu.edu/software/kraken/).
 """
 from __future__ import absolute_import, division, print_function
 
+from pathlib import Path
 import argparse
 from collections import OrderedDict
 import csv
@@ -32,7 +33,7 @@ __license__ = "MIT"
 __url__ = "http://github.com/smdabdoub/kraken-biom"
 __maintainer__ = "Shareef M. Dabdoub"
 __email__ = "dabdoub.2@osu.edu"
-__version__ = '1.0.1'
+__version__ = '1.1.0'
 
 
 field_names = ["pct_reads", "clade_reads", "taxon_reads", 
@@ -312,8 +313,10 @@ def handle_program_options():
 
     parser = argparse.ArgumentParser(description=twdd(descr),
                            formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('kraken_reports', nargs='+',
+    parser.add_argument('kraken_reports', nargs='*',
                         help="Results files from the kraken-report tool.")
+    parser.add_argument('-k', '--kraken_reports_fp', metavar="REPORTS_FP",
+                        help="Folder containing kraken reports")
     parser.add_argument('--max', default="O", choices=ranks[:-1],
                         help="Assigned reads will be recorded only if \
                               they are at or below max rank. Default: O.")
@@ -367,8 +370,12 @@ def main():
         msg = "ERROR: Max and Min ranks are out of order: {} < {}"
         sys.exit(msg.format(args.max, args.min))
 
+    reports = args.kraken_reports
+    if args.kraken_reports_fp:
+        reports += [str(p) for p in Path(args.kraken_reports_fp).glob('*')]
+
     # load all kraken-report files and parse them
-    sample_counts, taxa = process_samples(args.kraken_reports, 
+    sample_counts, taxa = process_samples(reports, 
                                           max_rank=args.max, 
                                           min_rank=args.min)
 
