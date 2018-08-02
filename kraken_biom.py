@@ -13,6 +13,7 @@ import csv
 from datetime import datetime as dt
 from gzip import open as gzip_open
 import os.path as osp
+import re
 import sys
 from textwrap import dedent as twdd
 
@@ -81,6 +82,31 @@ def tax_fmt(tax_lvl, end):
     # print(tax)
     return tax
 
+def parse_tax_lvl(entry, tax_lvl_depth=[]):
+    """
+    Parse a single kraken-report entry and return a dictionary of taxa for its
+    named ranks.
+
+    :type entry: dict
+    :param entry: attributes of a single kraken-report row.
+    :type tax_lvl_depth: list
+    :param tax_lvl_depth: running record of taxon levels encountered in
+    previous calls.
+    """
+    # How deep in the hierarchy are we currently?  Each two spaces of
+    # indentation is one level deeper.  Also parse the scientific name at this
+    # level.
+    depth_and_name = re.match('^( *)(.*)', entry['sci_name'])
+    depth = len(depth_and_name.group(1))//2
+    name = depth_and_name.group(2)
+    # Remove the previous levels so we're one higher than the level of the new
+    # taxon.  (This also works if we're just starting out or are going deeper.)
+    del tax_lvl_depth[depth:]
+    # Append the new taxon.
+    tax_lvl_depth.append((entry['rank'], name))
+    # Create a tax_lvl dict for the named ranks.
+    tax_lvl = {x[0]: x[1] for x in tax_lvl_depth if x[0] in ranks}
+    return(tax_lvl)
 
 def parse_kraken_report(kdata, max_rank, min_rank):
     """
@@ -95,8 +121,6 @@ def parse_kraken_report(kdata, max_rank, min_rank):
     taxa = OrderedDict()
     # the master collection of read counts (keyed on NCBI ID)
     counts = OrderedDict()
-    # running record of the current taxonomic hierarchy
-    tax_lvl = {}
     # current rank
     r = 0
     max_rank_idx = ranks.index(max_rank)
@@ -105,18 +129,13 @@ def parse_kraken_report(kdata, max_rank, min_rank):
     for entry in kdata:
         erank = entry['rank'].strip()
         # print("erank: "+erank)
-        
-        # move back up the taxa tree to the current level
-        if erank in ranks and ranks.index(erank) < r:
-            r = ranks.index(erank)
-            tax_lvl = {r: tax_lvl[r] if r in tax_lvl else '' for r in ranks[:r]}
-        
-        # add current rank to running tally of ranks
+
         if erank in ranks:
-            tax_lvl[erank] = entry["sci_name"].strip()
-            # print("Recording tax level ({}): {}".format(erank, tax_lvl[erank]))
             r = ranks.index(erank)
         
+        # update running tally of ranks
+        tax_lvl = parse_tax_lvl(entry)
+
         # record the reads assigned to this taxon level, and record the taxonomy string with the NCBI ID
         if erank in ranks and min_rank_idx >= ranks.index(entry['rank']) >= max_rank_idx:
             taxon_reads = int(entry["taxon_reads"])
