@@ -70,7 +70,7 @@ you would like another format supported, please file an issue or send a pull
 request (note the contribution guidelines).
 ::
 
-    usage: kraken-biom.py [-h] [--max {D,P,C,O,F,G,S}] [--min {D,P,C,O,F,G,S}]
+    usage: kraken-biom [-h] [--max {D,P,C,O,F,G,S}] [--min {D,P,C,O,F,G,S}]
                           [-o OUTPUT_FP] [--fmt {hdf5,json,tsv}] [--gzip]
                           [--version] [-v]
                           kraken_reports [kraken_reports ...]
@@ -80,25 +80,25 @@ Usage examples
 
 1. Basic usage with default parameters::
 
-    $ kraken-biom.py S1.txt S2.txt
+    $ kraken-biom S1.txt S2.txt
 
   This produces a compressed BIOM 2.1 file: table.biom
 
 2. BIOM v1.0 output::
 
-    $ kraken-biom.py S1.txt S2.txt --fmt json
+    $ kraken-biom S1.txt S2.txt --fmt json
 
   Produces a BIOM 1.0 file: table.biom
 
 3. Compressed TSV output::
 
-    $ kraken-biom.py S1.txt S2.txt --fmt tsv --gzip -o table.tsv
+    $ kraken-biom S1.txt S2.txt --fmt tsv --gzip -o table.tsv
 
   Produces a TSV file: table.tsv.gz
 
 4. Change the max and min OTU levels to Class and Genus::
 
-    $ kraken-biom.py S1.txt S2.txt --max C --min G
+    $ kraken-biom S1.txt S2.txt --max C --min G
 
 
 Program arguments

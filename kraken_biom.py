@@ -307,25 +307,25 @@ def handle_program_options():
     --------------
     1. Basic usage with default parameters:
 
-    $ kraken-biom.py S1.txt S2.txt
+    $ kraken-biom S1.txt S2.txt
 
       This produces a compressed BIOM 2.1 file: table.biom
 
     2. BIOM v1.0 output:
 
-    $ kraken-biom.py S1.txt S2.txt --fmt json
+    $ kraken-biom S1.txt S2.txt --fmt json
 
       Produces a BIOM 1.0 file: table.biom
 
     3. Compressed TSV output:
 
-    $ kraken-biom.py S1.txt S2.txt --fmt tsv --gzip -o table.tsv
+    $ kraken-biom S1.txt S2.txt --fmt tsv --gzip -o table.tsv
 
       Produces a TSV file: table.tsv.gz
 
     4. Change the max and min OTU levels to Class and Genus:
 
-    $ kraken-biom.py S1.txt S2.txt --max C --min G
+    $ kraken-biom S1.txt S2.txt --max C --min G
 
     Program arguments
     -----------------"""
