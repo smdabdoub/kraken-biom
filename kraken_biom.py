@@ -19,6 +19,7 @@ from textwrap import dedent as twdd
 
 from biom.table import Table
 import numpy as np
+import pandas as pd
 
 try:
     import h5py
@@ -187,7 +188,7 @@ def process_samples(kraken_reports_fp, max_rank, min_rank):
     return sample_counts, taxa
 
 
-def create_biom_table(sample_counts, taxa):
+def create_biom_table(sample_counts, taxa, metadata_frame):
     """
     Create a BIOM table from sample counts and taxonomy metadata.
 
@@ -199,6 +200,14 @@ def create_biom_table(sample_counts, taxa):
     :param taxa: A mapping between the taxon IDs from sample_counts to the
                  full representation of the taxonomy string. The values in
                  this dict will be used as metadata in the BIOM table.
+
+    :type metadata_frame : Dataframe
+    :param metadata_frame: An Pandas dataframe With metadata for the
+                           imported samples. The first column should
+                           be the samples ids. This needs to be the
+                           same names as the imported samples. This is
+                           used as metadata for in the BIOM table.
+
     :rtype: biom.Table
     :return: A BIOM table containing the per-sample taxon counts and full
              taxonomy identifiers as metadata for each taxon.
@@ -211,9 +220,15 @@ def create_biom_table(sample_counts, taxa):
     
     gen_str = "kraken-biom v{} ({})".format(__version__, __url__)
 
-    return Table(data, list(taxa), list(sample_counts), tax_meta, 
+    # get the metadate from the imported samples.
+    # This way the metadate can be more than available samples.
+    samples_imported = list(sample_counts.keys())
+    metadata_frame.index=metadata_frame[metadata_frame.columns[0]]
+    meta_data = metadata_frame.loc[samples_imported].to_dict(orient='records')
+
+    return Table(data, list(taxa), list(sample_counts), tax_meta,
                  type="OTU table", create_date=str(dt.now().isoformat()),
-                 generated_by=gen_str, input_is_dense=True)
+                 generated_by=gen_str, input_is_dense=True,sample_metadata=meta_data)
 
 
 def write_biom(biomT, output_fp, fmt="hdf5", gzip=False):
@@ -349,6 +364,15 @@ def handle_program_options():
                         output to a different format using the --fmt option.\
                         The output can also be gzipped using the --gzip\
                         option. Default path is: ./table.biom")
+
+    parser.add_argument('-m','--metadata',default=False,
+                        help="Path to the sample metadata file. This should\
+                             be in TSV format. The first column should be \
+                             the sample id. This is the same name as the \
+                             input files. If no metadata is given, basic\
+                            metadata is added to help when importing the\
+                            biom file on sites like phinch (http://phinch.org/index.html)."
+                        )
     parser.add_argument('--otu_fp',
                         help="Create a file containing just the (NCBI) OTU IDs\
                         for use with a service such as phyloT \
@@ -394,13 +418,20 @@ def main():
         reports += [str(p) for p in Path(args.kraken_reports_fp).glob('*')]
 
     # load all kraken-report files and parse them
-    sample_counts, taxa = process_samples(reports, 
-                                          max_rank=args.max, 
+    sample_counts, taxa = process_samples(reports,
+                                          max_rank=args.max,
                                           min_rank=args.min)
 
     # create new BIOM table from sample counts and taxon ids
     # add taxonomy strings to row (taxon) metadata
-    biomT = create_biom_table(sample_counts, taxa)
+    # check if the user has givin metadata.
+    # Or make is when nothing is pressent
+    if args.metadata :
+        metadata_frame = pd.read_csv(args.metadata,sep='\t')
+        metadata_frame = metadata_frame.astype(str)
+    else :
+        metadata_frame=pd.DataFrame(data=[{"id":key} for key in sample_counts.keys() ])
+    biomT = create_biom_table(sample_counts, taxa, metadata_frame)
 
     out_fp = write_biom(biomT, args.output_fp, args.fmt, args.gzip)
 

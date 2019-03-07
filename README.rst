@@ -100,6 +100,9 @@ Usage examples
 
     $ kraken-biom S1.txt S2.txt --max C --min G
 
+4. Basic usage with default parameters and metadata::
+    $ kraken-biom S1.txt S2.txt -m metadata.tsv
+
 
 Program arguments
 -----------------
@@ -123,6 +126,14 @@ optional arguments::
                             to a different format using the --fmt option. The
                             output can also be gzipped using the --gzip option.
                             Default path is: ./table.biom
+     -m METADATA, --metadata METADATA
+                            Path to the sample metadata file. This should be in
+                            TSV format. The first column should be the sample id.
+                            This is the same name as the input files. If no
+                            metadata is given, basic metadata is added to help
+                            when importing the biom file on sites like phinch
+                            (http://phinch.org/index.html).
+
       --fmt {hdf5,json,tsv}
                             Set the output format of the BIOM table. Default is
                             HDF5.
