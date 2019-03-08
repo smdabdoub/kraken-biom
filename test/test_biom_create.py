@@ -183,8 +183,11 @@ class kraken_biom_Test(unittest.TestCase):
         self.sample_counts["A"] = countsA
         self.sample_counts["B"] = countsB
 
+        # Make the dummy metadata for the samples.
+        self.metadata =kb.process_metadata(self.sample_counts ,None)
+
         # create the BIOM table from the sample counts and taxa
-        self.biomT = kb.create_biom_table(self.sample_counts, self.taxa)
+        self.biomT = kb.create_biom_table(self.sample_counts, self.taxa,self.metadata)
 
     def test_sample_ids(self):
         biom_sample_ids = self.biomT.ids(axis="sample")
@@ -220,7 +223,12 @@ class kraken_biom_Test(unittest.TestCase):
         self.assertTrue(all([self.biomT.get_value_by_ids(otu_id, "B") 
                              == countsB[otu_id] for otu_id in countsB]))
 
+    def test_metadata(self):
+        metadata = self.biomT.metadata()
 
+        self.assertEqual(len(metadata), 2)
+        self.assertEqual( dict(self.biomT.metadata("A"))['Id'],'A')
+        self.assertEqual( dict(self.biomT.metadata("B"))['Id'],'B')
 
     def tearDown(self):
         pass
