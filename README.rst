@@ -100,9 +100,10 @@ Usage examples
 
     $ kraken-biom S1.txt S2.txt --max C --min G
 
-4. Basic usage with default parameters and metadata::
-    $ kraken-biom S1.txt S2.txt -m metadata.tsv
+5. Basic usage with default parameters and metadata::
 
+    $ kraken-biom S1.txt S2.txt -m metadata.tsv
+This produces a compressed BIOM 2.1 file: table.biom
 
 Program arguments
 -----------------
