@@ -28,6 +28,14 @@ From source:
 
     $ python setup.py install
 
+From docker:
+
+.. code-block:: bash
+
+    $ git clone https://github.com/smdabdoub/kraken-biom.git && cd kraken-biom
+    $ docker build . -t kraken_biom
+    $ docker run -it --rm -v ${pwd}:/data kraken_biom
+
 
 Requirements
 ------------
