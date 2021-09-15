@@ -19,6 +19,7 @@ from textwrap import dedent as twdd
 
 from biom.table import Table
 import numpy as np
+import pandas as pd
 
 try:
     import h5py
@@ -34,7 +35,7 @@ __license__ = "MIT"
 __url__ = "http://github.com/smdabdoub/kraken-biom"
 __maintainer__ = "Shareef M. Dabdoub"
 __email__ = "dabdoub.2@osu.edu"
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 
 
 field_names = ["pct_reads", "clade_reads", "taxon_reads", 
@@ -82,6 +83,7 @@ def tax_fmt(tax_lvl, end):
     # print(tax)
     return tax
 
+
 def parse_tax_lvl(entry, tax_lvl_depth=[]):
     """
     Parse a single kraken-report entry and return a dictionary of taxa for its
@@ -107,6 +109,7 @@ def parse_tax_lvl(entry, tax_lvl_depth=[]):
     # Create a tax_lvl dict for the named ranks.
     tax_lvl = {x[0]: x[1] for x in tax_lvl_depth if x[0] in ranks}
     return(tax_lvl)
+
 
 def parse_kraken_report(kdata, max_rank, min_rank):
     """
@@ -187,7 +190,45 @@ def process_samples(kraken_reports_fp, max_rank, min_rank):
     return sample_counts, taxa
 
 
-def create_biom_table(sample_counts, taxa):
+def process_metadata(sample_counts,metadata):
+    """
+    Reads the sample metadata file. If no metadata is given dummy metadata
+    is made.
+
+    Example dummy metadata:
+        {Id : sample name}
+
+    The first column of the TSV file should be samples ids.
+
+    :type sample_counts: dict
+    :param sample_counts: A dictionary of dictionaries with the first level
+                          keyed on sample ID, and the second level keyed on
+                          taxon ID with counts as values.
+
+    :type metadata: file
+    :param metadata: The path to the metadata file.
+
+    :rtype: list
+    :return: metadata: List of Dictionaries with metadata from
+                       every column per sample. Only the metadata
+                       corresponding to the input samples is added.
+    """
+    if metadata:
+        metadata_frame = pd.read_csv(metadata,sep='\t')
+        metadata_frame = metadata_frame.astype(str)
+        samples_imported = list(sample_counts.keys())
+        metadata_frame.index = metadata_frame[metadata_frame.columns[0]]
+        meta_data = metadata_frame.loc[samples_imported].to_dict(
+            orient='records') # select the samples in order of sample_counts.
+
+    else :
+        metadata_frame=pd.DataFrame(data=[{"Id":key}
+                                          for key in sample_counts.keys() ])
+        meta_data = metadata_frame.to_dict(orient='records')
+    return meta_data
+
+
+def create_biom_table(sample_counts, taxa, sample_metadata):
     """
     Create a BIOM table from sample counts and taxonomy metadata.
 
@@ -199,6 +240,11 @@ def create_biom_table(sample_counts, taxa):
     :param taxa: A mapping between the taxon IDs from sample_counts to the
                  full representation of the taxonomy string. The values in
                  this dict will be used as metadata in the BIOM table.
+
+    :type sample_metadata : list
+    :param sample_metadata: A list with metadata for the imported samples.
+                           This is used as metadata for in the BIOM table.
+
     :rtype: biom.Table
     :return: A BIOM table containing the per-sample taxon counts and full
              taxonomy identifiers as metadata for each taxon.
@@ -211,9 +257,10 @@ def create_biom_table(sample_counts, taxa):
     
     gen_str = "kraken-biom v{} ({})".format(__version__, __url__)
 
-    return Table(data, list(taxa), list(sample_counts), tax_meta, 
+    return Table(data, list(taxa), list(sample_counts), tax_meta,
                  type="OTU table", create_date=str(dt.now().isoformat()),
-                 generated_by=gen_str, input_is_dense=True)
+                 generated_by=gen_str, input_is_dense=True,
+                 sample_metadata=sample_metadata)
 
 
 def write_biom(biomT, output_fp, fmt="hdf5", gzip=False):
@@ -326,6 +373,12 @@ def handle_program_options():
     4. Change the max and min OTU levels to Class and Genus:
 
     $ kraken-biom S1.txt S2.txt --max C --min G
+    
+    5. Basic usage with default parameters and metadata::
+   
+    $ kraken-biom S1.txt S2.txt -m metadata.tsv
+
+
 
     Program arguments
     -----------------"""
@@ -349,6 +402,19 @@ def handle_program_options():
                         output to a different format using the --fmt option.\
                         The output can also be gzipped using the --gzip\
                         option. Default path is: ./table.biom")
+
+    parser.add_argument('-m','--metadata',default=False,
+                        help="Path to the sample metadata file. This should\
+                        be in TSV format. The first column should be \
+                        the sample id. This is the same name as the \
+                        input files. If no metadata is given, basic\
+                        metadata is added to help when importing the\
+                        biom file on sites like phinch \
+                        (http://phinch.org/index.html).\
+                        Example for metadata files.\
+                        http://qiime.org/documentation/\
+                        file_formats.html#mapping-file-overview"
+                        )
     parser.add_argument('--otu_fp',
                         help="Create a file containing just the (NCBI) OTU IDs\
                         for use with a service such as phyloT \
@@ -394,13 +460,17 @@ def main():
         reports += [str(p) for p in Path(args.kraken_reports_fp).glob('*')]
 
     # load all kraken-report files and parse them
-    sample_counts, taxa = process_samples(reports, 
-                                          max_rank=args.max, 
+    sample_counts, taxa = process_samples(reports,
+                                          max_rank=args.max,
                                           min_rank=args.min)
+
+    # Make sample metadata. Reads the givin file or
+    # make simple dummy metadata.
+    sample_metadata = process_metadata(sample_counts, args.metadata)
 
     # create new BIOM table from sample counts and taxon ids
     # add taxonomy strings to row (taxon) metadata
-    biomT = create_biom_table(sample_counts, taxa)
+    biomT = create_biom_table(sample_counts, taxa, sample_metadata)
 
     out_fp = write_biom(biomT, args.output_fp, args.fmt, args.gzip)
 
