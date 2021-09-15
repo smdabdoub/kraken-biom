@@ -66,7 +66,6 @@ def tax_fmt(tax_lvl, end):
         if "S" in tax_lvl and tax_lvl["SS"].startswith(tax_lvl["S"]):
             tax_lvl["SS"] = tax_lvl["SS"][len(tax_lvl["S"])+1:]
     
-    # print(ranks[:end])
     tax = ["{}__{}".format(r.lower(), tax_lvl[r] if r in tax_lvl else '') 
              for r in ranks[:end+1]]
     # add empty identifiers for ranks beyond end
@@ -80,7 +79,6 @@ def tax_fmt(tax_lvl, end):
     if tax[0].startswith('d'):
         tax[0] = "k"+tax[0][1:]
 
-    # print(tax)
     return tax
 
 
@@ -105,7 +103,11 @@ def parse_tax_lvl(entry, tax_lvl_depth=[]):
     # taxon.  (This also works if we're just starting out or are going deeper.)
     del tax_lvl_depth[depth:]
     # Append the new taxon.
-    tax_lvl_depth.append((entry['rank'], name))
+    erank = entry['rank']
+    if erank == '-' and depth > 8 and tax_lvl_depth[-1][0] == 'S':
+        erank = 'SS'
+    tax_lvl_depth.append((erank, name))
+
     # Create a tax_lvl dict for the named ranks.
     tax_lvl = {x[0]: x[1] for x in tax_lvl_depth if x[0] in ranks}
     return(tax_lvl)
@@ -130,31 +132,28 @@ def parse_kraken_report(kdata, max_rank, min_rank):
     min_rank_idx = ranks.index(min_rank)
 
     for entry in kdata:
-        erank = entry['rank'].strip()
-        # print("erank: "+erank)
-
-        if erank in ranks:
-            r = ranks.index(erank)
-        
         # update running tally of ranks
         tax_lvl = parse_tax_lvl(entry)
 
+        erank = entry['rank'].strip()
+        if 'SS' in tax_lvl:
+            erank = 'SS'
+
+        if erank in ranks:
+            r = ranks.index(erank)     
+
+
         # record the reads assigned to this taxon level, and record the taxonomy string with the NCBI ID
-        if erank in ranks and min_rank_idx >= ranks.index(entry['rank']) >= max_rank_idx:
+        if erank in ranks and min_rank_idx >= ranks.index(erank) >= max_rank_idx:
             taxon_reads = int(entry["taxon_reads"])
             clade_reads = int(entry["clade_reads"])
-            if taxon_reads > 0 or (clade_reads > 0 and entry['rank'] == min_rank):
+            if taxon_reads > 0 or (clade_reads > 0 and erank == min_rank):
                 taxa[entry['ncbi_tax']] = tax_fmt(tax_lvl, r)
-                if entry['rank'] == min_rank:
+                if erank == min_rank:
                     counts[entry['ncbi_tax']] = clade_reads
                 else:
                     counts[entry['ncbi_tax']] = taxon_reads
-                # print("  Counting {} reads at {}".format(counts[entry['ncbi_tax']], '; '.join(taxa[entry['ncbi_tax']])))
-        
 
-        #TODO: handle subspecies
-        #if erank == '-' and min_rank == "SS" and last_entry_indent < curr_indent:
-        #    pass
     return counts, taxa
 
 
@@ -389,10 +388,10 @@ def handle_program_options():
                         help="Results files from the kraken-report tool.")
     parser.add_argument('-k', '--kraken_reports_fp', metavar="REPORTS_FP",
                         help="Folder containing kraken reports")
-    parser.add_argument('--max', default="O", choices=ranks[:-1],
+    parser.add_argument('--max', default="O", choices=ranks,
                         help="Assigned reads will be recorded only if \
                               they are at or below max rank. Default: O.")
-    parser.add_argument('--min', default="S", choices=ranks[:-1],
+    parser.add_argument('--min', default="S", choices=ranks,
                         help="Reads assigned at and below min rank \
                               will be recorded as being assigned to the \
                               min rank level. Default: S.")
