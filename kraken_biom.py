@@ -191,8 +191,8 @@ def process_samples(kraken_reports_fp, max_rank, min_rank):
 
 def process_metadata(sample_counts,metadata):
     """
-    Reads the sample metadata file. If no metadata is given dummy metadata
-    is made.
+    Reads the sample metadata file. If no metadata is given, dummy metadata
+    is added.
 
     Example dummy metadata:
         {Id : sample name}
@@ -405,15 +405,14 @@ def handle_program_options():
     parser.add_argument('-m','--metadata',default=False,
                         help="Path to the sample metadata file. This should\
                         be in TSV format. The first column should be \
-                        the sample id. This is the same name as the \
+                        the Sample ID. This is the same name as the \
                         input files. If no metadata is given, basic\
-                        metadata is added to help when importing the\
-                        biom file on sites like phinch \
+                        metadata is added to support importing the\
+                        BIOM table into sites like phinch \
                         (http://phinch.org/index.html).\
-                        Example for metadata files.\
+                        Example for metadata files:\
                         http://qiime.org/documentation/\
-                        file_formats.html#mapping-file-overview"
-                        )
+                        file_formats.html#mapping-file-overview")
     parser.add_argument('--otu_fp',
                         help="Create a file containing just the (NCBI) OTU IDs\
                         for use with a service such as phyloT \
@@ -463,8 +462,8 @@ def main():
                                           max_rank=args.max,
                                           min_rank=args.min)
 
-    # Make sample metadata. Reads the givin file or
-    # make simple dummy metadata.
+    # Make sample metadata. Reads the given file or
+    # adds dummy metadata.
     sample_metadata = process_metadata(sample_counts, args.metadata)
 
     # create new BIOM table from sample counts and taxon ids
