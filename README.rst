@@ -37,6 +37,13 @@ From docker:
     $ docker run -it --rm -v ${pwd}:/data kraken_biom
 
 
+Citation
+--------
+kraken-biom does not yet have a published article, but it can be cited as:
+
+    Dabdoub, SM (2016). kraken-biom: Enabling interoperative format conversion for Kraken results (Version 1.2) [Software].  
+    Available at https://github.com/smdabdoub/kraken-biom.
+
 Requirements
 ------------
 
